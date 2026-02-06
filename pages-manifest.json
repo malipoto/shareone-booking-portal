@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-06T19:08:31.054Z",
+  "generated_at": "2026-02-06T19:09:07.245Z",
   "pages": [
     {
       "id": "9041aaf2-6626-464e-98aa-1f1a5e643a63",
@@ -57,7 +57,7 @@
         }
       ],
       "published_at": "2026-02-06T19:08:27.439167+00:00",
-      "is_accepting_interviews": true
+      "is_accepting_interviews": false
     }
   ]
 }
