@@ -1,0 +1,21 @@
+---
+import manifest from '../../pages-manifest.json';
+
+export function getStaticPaths() {
+  return manifest.pages.map((page) => ({
+    params: { slug: page.slug },
+    props: { page },
+  }));
+}
+
+const { page } = Astro.props;
+---
+<html>
+  <head>
+    <title>Book with {page.name}</title>
+  </head>
+  <body>
+    <h1>{page.name}</h1>
+    <p>{page.business_description}</p>
+  </body>
+</html>
