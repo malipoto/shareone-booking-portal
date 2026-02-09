@@ -1,6 +1,66 @@
 {
-  "generated_at": "2026-02-06T19:22:29.630Z",
+  "generated_at": "2026-02-09T15:22:23.148Z",
   "pages": [
+    {
+      "id": "8fbe41ef-2fb0-4083-8b58-c30356d7d4ca",
+      "slug": "prl-2024101012-crcm8fbe",
+      "name": "Curcumin-FX",
+      "calendly_link": null,
+      "logo_url": null,
+      "business_description": "Premier Research Labs is a provider of practitioner-grade nutritional supplements, specializing in clean, excipient-free formulas verified for purity and potency.",
+      "transformation": "Enhances the bioavailable absorption of free curcuminoids to support a healthy inflammatory response, joint comfort, cognitive health, and whole-body antioxidant defense.",
+      "audience_served": "Health care practitioners, professional resellers, and their clients who require high-quality, clinically validated supplements.",
+      "invitation_swipe_copy": null,
+      "website": "https://prlabs.com/curcumin-fx.html",
+      "story_formula_questions": [
+        {
+          "id": "94f1fc43-1bf7-4678-8985-0f3b434ac8ca",
+          "question_number": 1,
+          "question_text": "So, take me back to before you started using Curcumin-FX—what was going on with your body that made you feel like you needed some extra support?",
+          "follow_up_text": "Was there a specific moment or a certain daily activity that really made you realize things weren't as comfortable as they should be?"
+        },
+        {
+          "id": "ae99d2af-8f97-4ffe-87c4-323c35707cc3",
+          "question_number": 2,
+          "question_text": "I'm curious, had you tried other turmeric or curcumin supplements before this one, or was this your first time diving into that world?",
+          "follow_up_text": "If you did, what was it about those other options that just wasn't quite hitting the mark for you?"
+        },
+        {
+          "id": "11bc25a9-b4ad-4879-bcbd-428e9bf6dd03",
+          "question_number": 3,
+          "question_text": "When you finally got your hands on Curcumin-FX and saw it was practitioner-grade and super clean, what was going through your mind?",
+          "follow_up_text": "Did knowing it was backed by that specific Fenugreek Fiber Technology give you a little more confidence that it would actually work?"
+        },
+        {
+          "id": "c3c7d348-2aa0-4088-b819-efbed8a4e339",
+          "question_number": 4,
+          "question_text": "Tell me about those first few days or weeks of taking it—when did you start to notice that 'aha' moment where things felt a bit different?",
+          "follow_up_text": "Was it a gradual shift, or did you just wake up one morning and realize your joints or your head felt a lot clearer?"
+        },
+        {
+          "id": "6b29f613-2808-4024-8e75-929f1bffa6ec",
+          "question_number": 5,
+          "question_text": "Since it's focused on that healthy inflammatory response, how has that change actually played out in your day-to-day life?",
+          "follow_up_text": ""
+        },
+        {
+          "id": "780426ad-cb6f-465e-bdbb-3d2e99b93e16",
+          "question_number": 6,
+          "question_text": "I'd love to hear about the peace of mind you get from using a supplement that's totally free of all those nasty fillers and excipients.",
+          "follow_up_text": "Does it feel better knowing you're putting something so pure into your system compared to the stuff you find on big-box store shelves?"
+        },
+        {
+          "id": "5c9e730c-6618-41f6-b5d4-b5bbd0f80254",
+          "question_number": 7,
+          "question_text": "If you were chatting with a friend who was dealing with the same stuff you were, what would you tell them about your experience with Curcumin-FX?",
+          "follow_up_text": "What’s the one big thing you'd want them to know about how much it's helped your overall well-being?"
+        }
+      ],
+      "published_at": "2026-02-09T15:22:20.68384+00:00",
+      "is_accepting_interviews": true,
+      "booking_headline": null,
+      "booking_body_text": null
+    },
     {
       "id": "9041aaf2-6626-464e-98aa-1f1a5e643a63",
       "slug": "prl-2024101012-prmr9041",
@@ -58,6 +118,23 @@
       ],
       "published_at": "2026-02-06T19:13:58.966048+00:00",
       "is_accepting_interviews": true,
+      "booking_headline": null,
+      "booking_body_text": null
+    },
+    {
+      "id": "3b1d8cfb-cf2d-4168-a48c-10481cb3a677",
+      "slug": "mlg-2025120600-mllr3b1d",
+      "name": "Miller Growth Client Testimonials",
+      "calendly_link": "https://calendly.com/share-one-directors/mlg",
+      "logo_url": null,
+      "business_description": null,
+      "transformation": null,
+      "audience_served": null,
+      "invitation_swipe_copy": "SPECIAL INVITATION: Share Your Success Story with Ben Miller (Limited Spots Available)\nCC: Director@Share.one  \n\nI would really appreciate it if you could participate in a virtual video interview with Miller Growth. Your journey and insights are invaluable, and your story can help other Founders, CEOs and revenue leaders find the right resource to help scale their company. Your expertise is truly impactful, and I would be honoured to feature your success.\n\nWould you be happy to share your experience and story through a short video interview with one of my producers?\n\nIt will just take 20 minutes of your time. You just need to book a recording time form here: https://book.share.one/MLG-2025120600\n\nCan I lean on you for this?\n\nThank you so much!",
+      "website": "www.millergrowth.co/",
+      "story_formula_questions": [],
+      "published_at": null,
+      "is_accepting_interviews": false,
       "booking_headline": null,
       "booking_body_text": null
     }
