@@ -49,13 +49,15 @@ const isAccepting = page.is_active !== false;
 const isCalendlyEmbed = page.calendly_link?.includes('<div') || page.calendly_link?.includes('calendly-inline-widget');
 const calendlyUrl = !isCalendlyEmbed ? page.calendly_link : null;
 
+const utmParams = `utm_source=${encodeURIComponent(clientName)}&utm_campaign=${encodeURIComponent(page.name)}&utm_content=${page.id}`;
+
 let calendlyEmbedHtml = '';
 if (isCalendlyEmbed && page.calendly_link) {
   calendlyEmbedHtml = page.calendly_link.replace(
     /data-url="([^"]+)"/,
-    (_match: string, url: string) => {
+    (_match, url) => {
       const separator = url.includes('?') ? '&' : '?';
-      return `data-url="${url}${separator}utm_source=${encodeURIComponent(clientName)}&utm_campaign=${encodeURIComponent(page.name)}&utm_content=${page.id}"`;
+      return `data-url="${url}${separator}${utmParams}"`;
     }
   );
 }
@@ -410,7 +412,7 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
             <Fragment set:html={calendlyEmbedHtml} />
           ) : calendlyUrl ? (
             <Fragment set:html={`
-              <div class="calendly-inline-widget" data-url="${calendlyUrl}${calendlyUrl.includes('?') ? '&' : '?'}utm_source=${encodeURIComponent(clientName)}&utm_campaign=${encodeURIComponent(page.name)}&utm_content=${page.id}" style="min-width:320px;height:700px;"></div>
+              <div class="calendly-inline-widget" data-url="${calendlyUrl}${calendlyUrl.includes('?') ? '&' : '?'}${utmParams}" style="min-width:320px;height:700px;"></div>
               <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
             `} />
           ) : (
