@@ -1,6 +1,9 @@
 {
   "name": "shareone-booking-portal",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
