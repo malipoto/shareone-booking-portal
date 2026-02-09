@@ -2,20 +2,415 @@
 import manifest from '../../pages-manifest.json';
 
 export function getStaticPaths() {
-  return manifest.pages.map((page) => ({
+  return manifest.pages.map((page: any) => ({
     params: { slug: page.slug },
     props: { page },
   }));
 }
 
 const { page } = Astro.props;
+const shareOneLogo = manifest.share_one_logo_url || '/shareone-logo.png';
+
+// Determine if calendly_link is an embed snippet or a plain URL
+const isCalendlyEmbed = page.calendly_link?.includes('<div') || page.calendly_link?.includes('calendly-inline-widget');
+const calendlyUrl = !isCalendlyEmbed ? page.calendly_link : null;
+
+// Extract URL from embed code if needed for UTM append
+let calendlyEmbedHtml = '';
+if (isCalendlyEmbed && page.calendly_link) {
+  // Inject UTM param into the embed's data-url
+  calendlyEmbedHtml = page.calendly_link.replace(
+    /data-url="([^"]+)"/,
+    (match: string, url: string) => {
+      const separator = url.includes('?') ? '&' : '?';
+      return `data-url="${url}${separator}utm_content=${page.id}"`;
+    }
+  );
+}
+
+const displayName = page.booking_headline || page.name;
+const bodyText = page.booking_body_text || page.business_description || '';
 ---
-<html>
-  <head>
-    <title>Book with {page.name}</title>
-  </head>
-  <body>
-    <h1>{page.name}</h1>
-    <p>{page.business_description}</p>
-  </body>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{displayName} â€” Book Your Interview | Share One</title>
+  <meta name="description" content={bodyText.slice(0, 155)} />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg: #FAFAF8;
+      --color-surface: #FFFFFF;
+      --color-text: #1A1A1A;
+      --color-text-secondary: #5A5A5A;
+      --color-text-muted: #8A8A8A;
+      --color-accent: #2563EB;
+      --color-accent-soft: #EFF6FF;
+      --color-border: #E8E8E4;
+      --color-border-light: #F0F0EC;
+      --color-warm-overlay: rgba(250, 245, 235, 0.5);
+      --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+      --shadow-md: 0 4px 20px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+      --max-width: 960px;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---- Top Bar ---- */
+    .top-bar {
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border-light);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .top-bar img { height: 28px; }
+
+    /* ---- Hero ---- */
+    .hero {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 56px 24px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .product-image-wrapper {
+      width: 120px;
+      height: 120px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--color-surface);
+      box-shadow: var(--shadow-md);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--color-border-light);
+    }
+    .product-image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 8px;
+    }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 400;
+      line-height: 1.2;
+      color: var(--color-text);
+      margin-bottom: 16px;
+      max-width: 600px;
+    }
+    .hero .subtitle {
+      font-size: 1.05rem;
+      color: var(--color-text-secondary);
+      max-width: 540px;
+      line-height: 1.65;
+    }
+
+    /* ---- Info Cards ---- */
+    .info-section {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px 32px;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .info-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: 24px;
+      transition: box-shadow 0.2s ease;
+    }
+    .info-card:hover { box-shadow: var(--shadow-sm); }
+    .info-card .card-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-muted);
+      margin-bottom: 8px;
+    }
+    .info-card .card-value {
+      font-size: 0.95rem;
+      color: var(--color-text-secondary);
+      line-height: 1.55;
+    }
+
+    /* ---- Calendly Section ---- */
+    .calendly-section {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px 48px;
+    }
+    .calendly-wrapper {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+    .calendly-header {
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid var(--color-border-light);
+    }
+    .calendly-header h2 {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 400;
+      margin-bottom: 4px;
+    }
+    .calendly-header p {
+      font-size: 0.88rem;
+      color: var(--color-text-muted);
+    }
+    .calendly-embed-container {
+      min-height: 700px;
+    }
+    .calendly-embed-container .calendly-inline-widget {
+      min-height: 700px !important;
+    }
+
+    /* ---- Not Accepting ---- */
+    .not-accepting {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px 48px;
+    }
+    .not-accepting-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 48px 32px;
+      text-align: center;
+    }
+    .not-accepting-card .icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 16px;
+      background: var(--color-accent-soft);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+    .not-accepting-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      margin-bottom: 8px;
+    }
+    .not-accepting-card p {
+      color: var(--color-text-muted);
+      font-size: 0.92rem;
+    }
+
+    /* ---- Questions Preview ---- */
+    .questions-section {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px 48px;
+    }
+    .questions-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 32px;
+    }
+    .questions-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+    }
+    .questions-card .qs-subtitle {
+      font-size: 0.88rem;
+      color: var(--color-text-muted);
+      margin-bottom: 24px;
+    }
+    .question-item {
+      display: flex;
+      gap: 14px;
+      padding: 14px 0;
+      border-top: 1px solid var(--color-border-light);
+    }
+    .question-number {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--color-accent-soft);
+      color: var(--color-accent);
+      font-weight: 600;
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .question-text {
+      font-size: 0.93rem;
+      color: var(--color-text-secondary);
+      padding-top: 3px;
+    }
+
+    /* ---- Footer ---- */
+    .footer {
+      border-top: 1px solid var(--color-border-light);
+      padding: 28px 24px;
+      text-align: center;
+    }
+    .footer-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .footer img { height: 20px; opacity: 0.5; }
+    .footer p {
+      font-size: 0.78rem;
+      color: var(--color-text-muted);
+    }
+    .footer a {
+      color: var(--color-accent);
+      text-decoration: none;
+    }
+    .footer a:hover { text-decoration: underline; }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 640px) {
+      .hero { padding: 40px 20px 28px; }
+      .product-image-wrapper { width: 96px; height: 96px; }
+      .info-grid { grid-template-columns: 1fr; }
+      .calendly-header { padding: 20px 20px 16px; }
+      .questions-card { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <img src={shareOneLogo} alt="Share One" />
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    {page.logo_url && (
+      <div class="product-image-wrapper">
+        <img src={page.logo_url} alt={page.name} />
+      </div>
+    )}
+    <h1>{displayName}</h1>
+    {bodyText && <p class="subtitle">{bodyText}</p>}
+  </section>
+
+  <!-- Info Cards -->
+  {(page.transformation || page.audience_served) && (
+    <section class="info-section">
+      <div class="info-grid">
+        {page.transformation && (
+          <div class="info-card">
+            <div class="card-label">What to expect</div>
+            <div class="card-value">{page.transformation}</div>
+          </div>
+        )}
+        {page.audience_served && (
+          <div class="info-card">
+            <div class="card-label">Who this is for</div>
+            <div class="card-value">{page.audience_served}</div>
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- Story Formula Questions Preview -->
+  {page.story_formula_questions && page.story_formula_questions.length > 0 && (
+    <section class="questions-section">
+      <div class="questions-card">
+        <h3>What We'll Talk About</h3>
+        <p class="qs-subtitle">A preview of the questions we'll cover during your interview</p>
+        {page.story_formula_questions.map((q: any) => (
+          <div class="question-item">
+            <div class="question-number">{q.question_number}</div>
+            <div class="question-text">{q.question_text}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <!-- Calendly / Not Accepting -->
+  {page.is_accepting_interviews ? (
+    <section class="calendly-section">
+      <div class="calendly-wrapper">
+        <div class="calendly-header">
+          <h2>Pick a Time</h2>
+          <p>Choose a date and time that works best for you</p>
+        </div>
+        <div class="calendly-embed-container">
+          {isCalendlyEmbed ? (
+            <Fragment set:html={calendlyEmbedHtml} />
+          ) : calendlyUrl ? (
+            <Fragment set:html={`
+              <div class="calendly-inline-widget" data-url="${calendlyUrl}${calendlyUrl.includes('?') ? '&' : '?'}utm_content=${page.id}" style="min-width:320px;height:700px;"></div>
+              <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+            `} />
+          ) : (
+            <div style="padding: 48px; text-align: center; color: var(--color-text-muted);">
+              <p>Scheduling will be available soon.</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  ) : (
+    <section class="not-accepting">
+      <div class="not-accepting-card">
+        <div class="icon">â¸</div>
+        <h3>Not Currently Accepting Interviews</h3>
+        <p>This booking page is paused. Please check back later or contact the team for more information.</p>
+      </div>
+    </section>
+  )}
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <img src={shareOneLogo} alt="Share One" />
+      <p>Powered by <a href="https://share.one" target="_blank" rel="noopener">Share One</a> â€” Video testimonials made easy</p>
+    </div>
+  </footer>
+
+</body>
 </html>
