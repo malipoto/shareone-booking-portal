@@ -1,6 +1,6 @@
 ---
 /**
- * SSR Booking Page — fetches data from Supabase at request time.
+ * SSR Booking Page fetches data from Supabase at request time.
  * 
  * For Astro SSR on Vercel:
  *   1. Set output: 'server' in astro.config.mjs
@@ -41,7 +41,7 @@ if (error || !page) {
 }
 
 const headline = page.booking_headline || "Let's Capture Your Story Together";
-const description = page.booking_body_text || "Book a friendly 20-minute virtual conversation with one of our trained guides. We'll walk you through everything and help you prepare—all you need is your computer or phone and to be present in a quiet space. We'll take care of the rest.";
+const description = page.booking_body_text || "Book a friendly 20-minute virtual conversation with one of our trained guides. We'll walk you through everything and help you prepareâ€”all you need is your computer or phone and to be present in a quiet space. We'll take care of the rest.";
 const clientName = page.client_name || page.name;
 const isAccepting = page.is_active !== false;
 
@@ -55,7 +55,7 @@ if (isCalendlyEmbed && page.calendly_link) {
     /data-url="([^"]+)"/,
     (_match: string, url: string) => {
       const separator = url.includes('?') ? '&' : '?';
-      return `data-url="${url}${separator}utm_content=${page.id}"`;
+      return `data-url="${url}${separator}utm_source=${encodeURIComponent(clientName)}&utm_campaign=${encodeURIComponent(page.name)}&utm_content=${page.id}"`;
     }
   );
 }
@@ -69,7 +69,7 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{headline} — {clientName} | Share One</title>
+  <title>{headline} â€” {clientName} | Share One</title>
   <meta name="description" content={description.slice(0, 155)} />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -374,7 +374,7 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
         <svg id="chevron-up" viewBox="0 0 24 24" style="display:none"><polyline points="18 15 12 9 6 15"></polyline></svg>
       </button>
       <div class="tips-content" id="tips-content">
-        <p class="tips-subheading">Quiet space — find a well-lit, calm environment free from background noise</p>
+        <p class="tips-subheading">Quiet space â€” find a well-lit, calm environment free from background noise</p>
         <div class="tips-grid">
           <div>
             <h4>Using a Phone</h4>
@@ -393,7 +393,7 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
             </ul>
           </div>
         </div>
-        <p class="tips-footer">Still unsure? No problem — your guide will help you adjust everything when you join.</p>
+        <p class="tips-footer">Still unsure? No problem â€” your guide will help you adjust everything when you join.</p>
       </div>
     </div>
   </section>
@@ -410,7 +410,7 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
             <Fragment set:html={calendlyEmbedHtml} />
           ) : calendlyUrl ? (
             <Fragment set:html={`
-              <div class="calendly-inline-widget" data-url="${calendlyUrl}${calendlyUrl.includes('?') ? '&' : '?'}utm_content=${page.id}" style="min-width:320px;height:700px;"></div>
+              <div class="calendly-inline-widget" data-url="${calendlyUrl}${calendlyUrl.includes('?') ? '&' : '?'}utm_source=${encodeURIComponent(clientName)}&utm_campaign=${encodeURIComponent(page.name)}&utm_content=${page.id}" style="min-width:320px;height:700px;"></div>
               <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
             `} />
           ) : (
@@ -430,7 +430,7 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
 
   <!-- Trust Banner -->
   <section class="trust-banner">
-    <p>We'll walk you through everything and help you prepare before we start. All you need is your device and a quiet space — we'll take care of the rest. No tech experience required.</p>
+    <p>We'll walk you through everything and help you prepare before we start. All you need is your device and a quiet space â€” we'll take care of the rest. No tech experience required.</p>
   </section>
 
   <!-- Footer -->
