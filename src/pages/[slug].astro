@@ -1,15 +1,6 @@
 ---
 /**
- * SSR Booking Page â€” fetches data from Supabase at request time.
- * 
- * For Astro SSR on Vercel:
- *   1. Set output: 'server' in astro.config.mjs
- *   2. Add @astrojs/vercel adapter
- *   3. Set SUPABASE_FUNCTIONS_URL env var in Vercel to your edge function base URL
- *      e.g. https://zhzwbkoxjdiiqaaakipr.supabase.co/functions/v1
- *   4. Set SUPABASE_ANON_KEY env var in Vercel
- * 
- * Pages are cached via Cache-Control headers (ISR-like behavior).
+ * SSR Booking Page — fetches data from Supabase at request time.
  */
 
 const { slug } = Astro.params;
@@ -40,10 +31,12 @@ if (error || !page) {
   return Astro.redirect('/404');
 }
 
-const headline = page.booking_headline || "Let's Capture Your Story Together";
-const description = page.booking_body_text || "Book a friendly 20-minute virtual conversation with one of our trained guides. We'll walk you through everything and help you prepareâ€”all you need is your computer or phone and to be present in a quiet space. We'll take care of the rest.";
+const mainHeader = page.booking_main_header || "Let's Capture Your Story Together";
+const headerSubtext = page.booking_header_subtext || "You're invited to a relaxed 20-minute virtual conversation with one of our trained guides. This is not a performance or a pitch, just a genuine conversation. Join from your computer or phone, find a quiet space, and show up as yourself. We will guide you through everything and take care of the rest.";
+const headline = page.booking_headline || `Interview Invitation for ${page.client_name}`;
+const description = page.booking_body_text || `Thank you for saying yes. Your experience matters, and your story has the power to inspire others who are considering ${page.client_name}. We are honored to listen, learn, and help you share what made your experience meaningful.`;
 const clientName = page.client_name || page.name;
-const isAccepting = page.is_active !== false;
+const isAccepting = page.is_active !== false && page.landing_page_published !== false;
 
 // Calendly embed detection
 const isCalendlyEmbed = page.calendly_link?.includes('<div') || page.calendly_link?.includes('calendly-inline-widget');
@@ -71,9 +64,10 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{headline} â€” {clientName} | Share One</title>
-  <meta name="description" content={description.slice(0, 155)} />
-  <link rel="icon" type="image/png" href="/favicon.png" />
+  <title>{mainHeader} &mdash; {clientName} | Share One</title>
+  <meta name="description" content={headerSubtext.slice(0, 155)} />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet" />
@@ -104,21 +98,45 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Header */
+    /* Combined Header + Banner */
+    .header-banner {
+      background: linear-gradient(135deg, var(--color-navy) 0%, var(--color-accent) 100%);
+    }
     .header {
-      background: var(--color-navy);
       height: 72px;
       display: flex;
       align-items: center;
       padding: 0 32px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
     .header img { height: 32px; }
+    .headline-banner {
+      padding: 24px 24px 48px;
+      text-align: center;
+    }
+    .headline-banner-inner {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .headline-banner h1 {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 400;
+      line-height: 1.2;
+      color: #FFFFFF;
+      margin-bottom: 16px;
+    }
+    .headline-banner .banner-description {
+      font-size: 18px;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.85);
+      max-width: 600px;
+      margin: 0 auto;
+    }
 
     /* Hero */
     .hero {
       background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-border-light) 100%);
-      padding: 80px 24px;
+      padding: 60px 24px;
     }
     .hero-inner {
       max-width: 960px;
@@ -128,7 +146,7 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
       gap: 48px;
       align-items: center;
     }
-    .client-label {
+    .invitation-headline {
       font-size: 14px;
       font-weight: 600;
       letter-spacing: 0.06em;
@@ -136,19 +154,11 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
       color: var(--color-text-muted);
       margin-bottom: 12px;
     }
-    .hero h1 {
-      font-family: var(--font-display);
-      font-size: clamp(32px, 5vw, 48px);
-      font-weight: 400;
-      line-height: 1.15;
-      color: var(--color-text);
-      margin-bottom: 20px;
-    }
-    .hero .description {
-      font-size: 18px;
+    .invitation-description {
+      font-size: 16px;
       line-height: 1.7;
-      color: var(--color-text-secondary);
-      max-width: 520px;
+      color: #4B5563;
+      max-width: 500px;
     }
     .logo-card {
       border-radius: 20px;
@@ -276,26 +286,48 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
       border-radius: 20px;
       overflow: hidden;
       box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      min-height: 700px;
+      min-height: 1000px;
     }
-    .paused-card {
-      background: #FEF3C7;
-      border: 1px solid #FDE68A;
-      border-radius: 20px;
-      padding: 48px;
+    .paused-page {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 24px;
+    }
+    .paused-inner {
+      max-width: 560px;
       text-align: center;
     }
-    .paused-card h3 {
+    .paused-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 32px;
+      font-size: 36px;
+    }
+    .paused-inner h1 {
       font-family: var(--font-display);
-      font-size: 24px;
-      color: #92400E;
+      font-size: clamp(28px, 5vw, 40px);
+      font-weight: 400;
+      line-height: 1.2;
+      color: var(--color-text);
+      margin-bottom: 20px;
+    }
+    .paused-inner .paused-body {
+      font-size: 18px;
+      line-height: 1.7;
+      color: var(--color-text-secondary);
       margin-bottom: 12px;
     }
-    .paused-card p {
+    .paused-inner .paused-sub {
       font-size: 16px;
-      color: #A16207;
-      max-width: 480px;
-      margin: 0 auto;
+      line-height: 1.7;
+      color: var(--color-text-muted);
     }
 
     /* Trust Banner */
@@ -344,98 +376,109 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
     }
   </style>
 </head>
-<body>
+<body style={isAccepting ? '' : 'display:flex;flex-direction:column;min-height:100vh;'}>
 
-  <!-- Header -->
-  <header class="header">
-    <img src="/shareone-logo-white.svg" alt="Share One" />
-  </header>
-
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero-inner">
-      <div>
-        <p class="client-label">{clientName}</p>
-        <h1>{headline}</h1>
-        <p class="description">{description}</p>
-      </div>
-      {page.logo_url && (
-        <div class="logo-card">
-          <img src={page.logo_url} alt={clientName} />
-        </div>
-      )}
-    </div>
-  </section>
-
-  <!-- Quick Tips -->
-  <section class="tips-section">
-    <div class="tips-inner">
-      <button class="tips-toggle" id="tips-toggle" aria-expanded="false" aria-controls="tips-content">
-        <span>Quick Tips</span>
-        <svg id="chevron-down" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
-        <svg id="chevron-up" viewBox="0 0 24 24" style="display:none"><polyline points="18 15 12 9 6 15"></polyline></svg>
-      </button>
-      <div class="tips-content" id="tips-content">
-        <p class="tips-subheading">Quiet space â€” find a well-lit, calm environment free from background noise</p>
-        <div class="tips-grid">
-          <div>
-            <h4>Using a Phone</h4>
-            <ul>
-              <li><span class="bullet"></span><span>Set it to landscape, not portrait</span></li>
-              <li><span class="bullet"></span><span>Use a phone stand, tripod, or prop it against stable objects</span></li>
-              <li><span class="bullet"></span><span>Position at eye level for the best angle</span></li>
-            </ul>
+  {isAccepting ? (
+    <>
+      <div class="header-banner">
+        <header class="header">
+          <img src="/shareone-logo-white.svg" alt="Share One" />
+        </header>
+        <section class="headline-banner">
+          <div class="headline-banner-inner">
+            <h1>{mainHeader}</h1>
+            <p class="banner-description">{headerSubtext}</p>
           </div>
-          <div>
-            <h4>Using a Computer</h4>
-            <ul>
-              <li><span class="bullet"></span><span>Position your laptop or webcam at eye level</span></li>
-              <li><span class="bullet"></span><span>Sit an arm's length away from the screen</span></li>
-              <li><span class="bullet"></span><span>Test your camera and microphone before the call</span></li>
-            </ul>
-          </div>
-        </div>
-        <p class="tips-footer">Still unsure? No problem â€” your guide will help you adjust everything when you join.</p>
+        </section>
       </div>
-    </div>
-  </section>
 
-  <!-- Scheduling -->
-  <section class="schedule-section">
-    <div class="schedule-inner">
-      <h2>Choose a Time That Works for You</h2>
-      <p class="subtitle">Select your preferred date and time below. You'll receive a confirmation email with your virtual meeting link and preparation tips.</p>
-
-      {isAccepting ? (
-        <div class="calendly-wrapper">
-          {isCalendlyEmbed ? (
-            <Fragment set:html={calendlyEmbedHtml} />
-          ) : calendlyUrl ? (
-            <Fragment set:html={`
-              <div class="calendly-inline-widget" data-url="${calendlyUrl}${calendlyUrl.includes('?') ? '&' : '?'}${utmParams}" style="min-width:320px;height:700px;"></div>
-              <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
-            `} />
-          ) : (
-            <div style="padding: 48px; text-align: center; color: var(--color-text-muted);">
-              <p>Scheduling will be available soon.</p>
+      <section class="hero">
+        <div class="hero-inner">
+          <div>
+            <p class="invitation-headline">{headline}</p>
+            <p class="invitation-description">{description}</p>
+          </div>
+          {page.logo_url && (
+            <div class="logo-card">
+              <img src={page.logo_url} alt={clientName} />
             </div>
           )}
         </div>
-      ) : (
-        <div class="paused-card">
-          <h3>We're Not Currently Scheduling New Interviews</h3>
-          <p>We'd love to connect with you soon. Check back later or contact the team for more information.</p>
+      </section>
+
+      <section class="tips-section">
+        <div class="tips-inner">
+          <button class="tips-toggle" id="tips-toggle" aria-expanded="false" aria-controls="tips-content">
+            <span>Quick Tips</span>
+            <svg id="chevron-down" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            <svg id="chevron-up" viewBox="0 0 24 24" style="display:none"><polyline points="18 15 12 9 6 15"></polyline></svg>
+          </button>
+          <div class="tips-content" id="tips-content">
+            <p class="tips-subheading">Quiet space — find a well-lit, calm environment free from background noise</p>
+            <div class="tips-grid">
+              <div>
+                <h4>Using a Phone</h4>
+                <ul>
+                  <li><span class="bullet"></span><span>Set it to landscape, not portrait</span></li>
+                  <li><span class="bullet"></span><span>Use a phone stand, tripod, or prop it against stable objects</span></li>
+                  <li><span class="bullet"></span><span>Position at eye level for the best angle</span></li>
+                </ul>
+              </div>
+              <div>
+                <h4>Using a Computer</h4>
+                <ul>
+                  <li><span class="bullet"></span><span>Position your laptop or webcam at eye level</span></li>
+                  <li><span class="bullet"></span><span>Sit an arm's length away from the screen</span></li>
+                  <li><span class="bullet"></span><span>Test your camera and microphone before the call</span></li>
+                </ul>
+              </div>
+            </div>
+            <p class="tips-footer">Still unsure? No problem — your guide will help you adjust everything when you join.</p>
+          </div>
         </div>
-      )}
-    </div>
-  </section>
+      </section>
 
-  <!-- Trust Banner -->
-  <section class="trust-banner">
-    <p>We'll walk you through everything and help you prepare before we start. All you need is your device and a quiet space â€” we'll take care of the rest. No tech experience required.</p>
-  </section>
+      <section class="schedule-section">
+        <div class="schedule-inner">
+          <h2>Choose a Time That Works for You</h2>
+          <p class="subtitle">Select your preferred date and time below. You'll receive a confirmation email with your virtual meeting link and preparation tips.</p>
+          <div class="calendly-wrapper">
+            {isCalendlyEmbed ? (
+              <Fragment set:html={calendlyEmbedHtml} />
+            ) : calendlyUrl ? (
+              <Fragment set:html={`
+                <div class="calendly-inline-widget" data-url="${calendlyUrl}${calendlyUrl.includes('?') ? '&' : '?'}${utmParams}" style="min-width:320px;height:1000px;"></div>
+                <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+              `} />
+            ) : (
+              <div style="padding: 48px; text-align: center; color: var(--color-text-muted);">
+                <p>Scheduling will be available soon.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
 
-  <!-- Footer -->
+      <section class="trust-banner">
+        <p>We'll walk you through everything and help you prepare before we start. All you need is your device and a quiet space — we'll take care of the rest. No tech experience required.</p>
+      </section>
+    </>
+  ) : (
+    <>
+      <header class="header" style="background: linear-gradient(135deg, var(--color-navy) 0%, var(--color-accent) 100%);">
+        <img src="/shareone-logo-white.svg" alt="Share One" />
+      </header>
+      <div class="paused-page">
+        <div class="paused-inner">
+          <div class="paused-icon">⏸</div>
+          <h1>This Invitation Is Currently Paused</h1>
+          <p class="paused-body">Thank you for being willing to share your experience. At this time, we are not accepting new interview bookings.</p>
+          <p class="paused-sub">We recommend connecting with the person who invited you for next steps or additional details.</p>
+        </div>
+      </div>
+    </>
+  )}
+
   <footer class="site-footer">
     <img src="/shareone-logo-white.svg" alt="Share One" />
     <p>Thank you for inspiring someone today!</p>
