@@ -38,22 +38,10 @@ const description = page.booking_body_text || `Thank you for saying yes. Your ex
 const clientName = page.client_name || page.name;
 const isAccepting = page.is_active !== false && page.landing_page_published !== false;
 
-// Calendly embed detection
-const isCalendlyEmbed = page.calendly_link?.includes('<div') || page.calendly_link?.includes('calendly-inline-widget');
-const calendlyUrl = !isCalendlyEmbed ? page.calendly_link : null;
-
+// Calendly URL is now auto-assigned by the edge function based on is_long_form
+const calendlyUrl = page.calendly_link;
 const utmParams = `utm_source=${encodeURIComponent(clientName)}&utm_campaign=${encodeURIComponent(page.name)}&utm_content=${page.id}`;
-
-let calendlyEmbedHtml = '';
-if (isCalendlyEmbed && page.calendly_link) {
-  calendlyEmbedHtml = page.calendly_link.replace(
-    /data-url="([^"]+)"/,
-    (_match, url) => {
-      const separator = url.includes('?') ? '&' : '?';
-      return `data-url="${url}${separator}${utmParams}"`;
-    }
-  );
-}
+const calendlyFullUrl = calendlyUrl ? `${calendlyUrl}${calendlyUrl.includes('?') ? '&' : '?'}${utmParams}` : null;
 
 // Cache this page for 60s, serve stale for 5min while revalidating
 Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
@@ -176,6 +164,15 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
       max-height: 280px;
       object-fit: contain;
     }
+
+    .video-card {
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+      background: #000;
+      border: 1px solid var(--color-border);
+    }
+    .video-card video { display: block; width: 100%; max-height: 420px; background: #000; }
 
     /* Quick Tips */
     .tips-section { padding: 0 24px 80px; }
@@ -398,7 +395,11 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
             <p class="invitation-headline">{headline}</p>
             <p class="invitation-description">{description}</p>
           </div>
-          {page.logo_url && (
+          {page.booking_video_url ? (
+            <div class="video-card">
+              <video src={page.booking_video_url} controls playsinline preload="metadata" aria-label={`A welcome message from ${clientName}`}></video>
+            </div>
+          ) : page.logo_url && (
             <div class="logo-card">
               <img src={page.logo_url} alt={clientName} />
             </div>
@@ -443,12 +444,29 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
           <h2>Choose a Time That Works for You</h2>
           <p class="subtitle">Select your preferred date and time below. You'll receive a confirmation email with your virtual meeting link and preparation tips.</p>
           <div class="calendly-wrapper">
-            {isCalendlyEmbed ? (
-              <Fragment set:html={calendlyEmbedHtml} />
-            ) : calendlyUrl ? (
+            {calendlyFullUrl ? (
               <Fragment set:html={`
-                <div class="calendly-inline-widget" data-url="${calendlyUrl}${calendlyUrl.includes('?') ? '&' : '?'}${utmParams}" style="min-width:320px;height:1000px;"></div>
+                <div class="calendly-inline-widget" data-url="${calendlyUrl}" style="min-width:320px;height:700px;"></div>
                 <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+                <script type="text/javascript">
+                  window.addEventListener('load', function() {
+                    if (window.Calendly) {
+                      var container = document.querySelector('.calendly-inline-widget');
+                      if (container) {
+                        container.innerHTML = '';
+                        window.Calendly.initInlineWidget({
+                          url: '${calendlyUrl}',
+                          parentElement: container,
+                          utm: {
+                            utmSource: '${clientName.replace(/'/g, "\\'")}',
+                            utmCampaign: '${page.name.replace(/'/g, "\\'")}',
+                            utmContent: '${page.id}'
+                          }
+                        });
+                      }
+                    }
+                  });
+                </script>
               `} />
             ) : (
               <div style="padding: 48px; text-align: center; color: var(--color-text-muted);">
