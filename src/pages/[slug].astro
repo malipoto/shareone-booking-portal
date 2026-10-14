@@ -172,7 +172,10 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
       background: #000;
       border: 1px solid var(--color-border);
     }
-    .video-card video { display: block; width: 100%; max-height: 420px; background: #000; }
+    .video-card video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #000; }
+    .welcome-video { padding: 48px 24px 0; }
+    .welcome-video .video-card { max-width: 860px; margin: 0 auto; }
+    @media (max-width: 768px) { .welcome-video { padding: 24px 16px 0; } }
 
     /* Quick Tips */
     .tips-section { padding: 0 24px 80px; }
@@ -389,17 +392,21 @@ Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-re
         </section>
       </div>
 
+      {page.booking_video_url && (
+        <section class="welcome-video">
+          <div class="video-card">
+            <video src={`${page.booking_video_url}#t=0.1`} controls playsinline preload="metadata" aria-label={`A welcome message from ${clientName}`}></video>
+          </div>
+        </section>
+      )}
+
       <section class="hero">
         <div class="hero-inner">
           <div>
             <p class="invitation-headline">{headline}</p>
             <p class="invitation-description">{description}</p>
           </div>
-          {page.booking_video_url ? (
-            <div class="video-card">
-              <video src={page.booking_video_url} controls playsinline preload="metadata" aria-label={`A welcome message from ${clientName}`}></video>
-            </div>
-          ) : page.logo_url && (
+          {page.logo_url && (
             <div class="logo-card">
               <img src={page.logo_url} alt={clientName} />
             </div>
